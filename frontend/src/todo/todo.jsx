@@ -47,6 +47,12 @@ export default class Todo extends Component {
         this.setState({
             ...this.state, description: e.target.value
         })
+
+        const search = `&description__regex=/${e.target.value}/`
+        axios.get(`${URL}?sort=-createdAt${search}`)
+            .then(resp => this.setState({
+                ...this.state, list: resp.data
+            }))
     }
 
     handleAdd() {

@@ -12,6 +12,8 @@ export default class Todo extends Component {
         super(props)
         this.state = { description: '', list: [] }
 
+        this.handleMarkAsPending = this.handleMarkAsPending.bind(this)
+        this.handleMarkAsDone = this.handleMarkAsDone.bind(this)
         this.handleRemove = this.handleRemove.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleAdd = this.handleAdd.bind(this)
@@ -22,8 +24,18 @@ export default class Todo extends Component {
     refresh() {
         axios.get(`${URL}?sort=-createdAt`)
             .then(resp => this.setState({
-                ...this.state , description: '', list : resp.data
+                ...this.state, description: '', list: resp.data
             }))
+    }
+
+    handleMarkAsPending(todo) {
+        axios.put(`${URL}/${todo._id}`, { ...todo, done: false })
+            .then(resp => this.refresh())
+    }
+
+    handleMarkAsDone(todo) {
+        axios.put(`${URL}/${todo._id}`, { ...todo, done: true })
+            .then(resp => this.refresh())
     }
 
     handleRemove(todo) {
@@ -33,13 +45,13 @@ export default class Todo extends Component {
 
     handleChange(e) {
         this.setState({
-            ...this.state , description : e.target.value
+            ...this.state, description: e.target.value
         })
     }
 
     handleAdd() {
         const description = this.state.description;
-        axios.post(URL, {description})
+        axios.post(URL, { description })
             .then(resp => this.refresh())
     }
 
@@ -52,7 +64,12 @@ export default class Todo extends Component {
                     description={this.state.description}
                     handleChange={this.handleChange}
                 />
-                <TodoList list={this.state.list} handleRemove={this.handleRemove}/>
+                <TodoList
+                    list={this.state.list}
+                    handleRemove={this.handleRemove}
+                    handleMarkAsDone={this.handleMarkAsDone}
+                    handleMarkAsPending={this.handleMarkAsPending}
+                />
             </div>
         )
     }
